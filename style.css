@@ -975,7 +975,8 @@ a[data-type="external"] {
     .textpi {
         line-height: 1.6;
         font-size: calc(25px + 0.10vw);
-        font-size: 8vw;
+        min-height: 550px;
+
     }
 
     .footer_bottom  {
