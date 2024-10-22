@@ -973,9 +973,9 @@ a[data-type="external"] {
     }
 
     .textpi {
-        font-size: 23px;
         line-height: 1.6;
-
+        font-size: calc(25px + 0.10vw);
+        font-size: 8vw;
     }
 
     .footer_bottom  {
@@ -1588,7 +1588,8 @@ a[data-type="external"] {
 
 @media(min-width: 500px)and (max-width:1999px) {
     .textpi {
-        font-size: calc(21px + 0.10vw);
+        font-size: calc(25px + 0.10vw);
+        line-height: 1.45;
     }
 }
 
