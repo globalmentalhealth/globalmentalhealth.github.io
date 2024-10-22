@@ -1589,7 +1589,7 @@ a[data-type="external"] {
     font-size: 90%;
     font-weight: 400;
     letter-spacing: -.02em;
-    margin-bottom: 65px;
+    margin-bottom: 20px;
     line-height: 1.3;
     margin-top: 35px;
     color: #004534;
@@ -1598,19 +1598,18 @@ a[data-type="external"] {
 
 @media(min-width: 400px)and (max-width:1999px) {
     .textpi {
-        font-size:calc(19px + .75vw)
+        font-size: calc(19px + 0.10vw);
     }
 }
 
 @media(min-width: 2000px) {
     .textpi {
-        font-size:35px
+        font-size:30px
     }
 }
 
 @media(min-width: 1070px) {
     .textpi {
-        margin-bottom:120px;
         max-width: 600px;
         width: 80%;
         margin-top: 30px;
