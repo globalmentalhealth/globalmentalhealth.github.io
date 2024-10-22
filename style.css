@@ -914,18 +914,6 @@ a[data-type="external"] {
 
 
 @media (max-width: 499px) {
-
-    @keyframes floating {
-        0% {
-            transform: translate(0px, 0px);
-        }
-        50% {
-            transform: translate(0px, -7px); 
-        }
-        100% {
-            transform: translate(0px, 0px); 
-        }
-    }
     
     .element-lotus {
         width: calc(24vw);
@@ -985,7 +973,8 @@ a[data-type="external"] {
     }
 
     .textpi {
-        font-size: calc(23px + 0.75vw);
+        font-size: 23px;
+        line-height: 1.6;
 
     }
 
