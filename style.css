@@ -984,7 +984,7 @@ a[data-type="external"] {
 
     }
     .textpi {
-        font-size: calc(19px + 0.75vw);
+        font-size: calc(21px + 0.75vw);
 
     }
 
@@ -1596,7 +1596,7 @@ a[data-type="external"] {
 
 }
 
-@media(min-width: 400px)and (max-width:1999px) {
+@media(min-width: 500px)and (max-width:1999px) {
     .textpi {
         font-size: calc(19px + 0.10vw);
     }
