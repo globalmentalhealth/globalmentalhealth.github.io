@@ -25,21 +25,45 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        /* simple horizontal layout */
+        /* layout */
         .search-container{
           display:inline-flex;
           max-width:420px;
           width:100%;
+          position:relative;            /* for absolute popup */
         }
         #countryLang{
           flex:1;
-          padding:8px;
+          padding:.55rem .6rem;
           font-size:1rem;
         }
         #goBtn{
-          padding:8px 16px;
+          padding:.55rem 1rem;
           font-size:1rem;
           cursor:pointer;
+        }
+      
+        /* 👇 custom popup */
+        .ac-popup{
+          position:absolute;
+          top:100%;
+          left:0;
+          right:0;
+          z-index:999;
+          border:1px solid #ccc;
+          border-top:0;
+          background:#fff;
+          max-height:240px;
+          overflow-y:auto;
+          font-size:.95rem;
+        }
+        .ac-item{
+          padding:.55rem .6rem;
+          cursor:pointer;
+        }
+        .ac-item:hover,
+        .ac-active{
+          background:#f1f1f1;
         }
       </style>
 </head>
@@ -99,25 +123,12 @@
             
                 
                 <art class="bold_text themew">
-                    <div class="search-container">
-                        <input id="countryLang"
-                               list="countryLangList"
+                    <div class="search-wrap">
+                        <input id="clInput" autocomplete="off"
                                placeholder="Write your country and language">
                         <button id="goBtn">Go</button>
+                        <div id="acPopup" hidden></div>
                       </div>
-                      
-                      <!-- 🔽 Expand this list as needed (or build it in JS) -->
-                      <datalist id="countryLangList">
-                        <option value="United States – English">
-                        <option value="United States – Español">
-                        <option value="United Kingdom – English">
-                        <option value="Netherlands – Nederlands">
-                        <option value="France – Français">
-                        <option value="España – Español">
-                        <option value="Deutschland – Deutsch">
-                        <option value="日本 – 日本語">
-                        <option value="中国 – 中文">
-                      </datalist>
 
                     <section class="ct-block block-rect_areas alignfull">
                 
@@ -751,48 +762,228 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.6/dist/umd/popper.min.js"></script>
 <script>
-    (function () {
-      const input = document.getElementById('countryLang');
+    (() => {
+      /* ------------------------------------------------------------------
+       * 1. RAW LOOK-UP TABLE  (tab-separated, exactly as you pasted it)
+       * ------------------------------------------------------------------ */
+      const raw = `
+    Albania	Albanian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SQI-ALB
+    Algeria	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-DZA
+    Angola	Portuguese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-AGO
+    Argentina	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-ARG
+    Armenia	Armenian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AM-ARM
+    Australia	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-AUS
+    Austria	German	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=DE-AUT
+    Bahrain	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-BHR
+    Bahrain	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-BHR
+    Bangladesh	Bangla	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=BN-BGD
+    Bolivia	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-BOL
+    Bosnia-Herzegovina	Bosnian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=BS-BIH
+    Brazil	Portuguese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-BRA
+    Bulgaria	Bulgarian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=BG-BGR
+    Canada	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-CAN
+    Canada	French	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=FR-CAN
+    Chad	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-TCD
+    Chad	French	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=FR-TCD
+    Chile	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-CHL
+    China	Mandarin	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ZH-CHN
+    Croatia	Croatian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=HR-HRV
+    Cyprus	Greek	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EL-CYP
+    Czech	Czech Republic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=CS-CZE
+    Denmark	Danish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=DA-DNK
+    Ecuador	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-ECU
+    Egypt	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-EGY
+    Egypt	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-EGY
+    Estonia	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-EST
+    Estonia	Estonian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ET-EST
+    Ethiopia	Amharic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AM-ETH
+    Ethiopia	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-ETH
+    Finland	Finnish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=FI-FIN
+    Georgia, Republic of	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-GEO
+    Georgia, Republic of	Georgian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=KA-GEO
+    Germany	German	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=DE-DEU
+    Greece	Greek	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EL-GRC
+    Hong Kong	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-HKG
+    Hong Kong	Traditional Chinese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ZH-HKG
+    Hungary	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-HUN
+    Hungary	Hungarian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=HU-HUN
+    India	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-IND
+    India	Hindi	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=HI-IND
+    Indonesia	Bahasa Indonesia	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ID-IDN
+    Indonesia	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-IDN
+    Iran	Persian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=FA-IRN
+    Ireland	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-IRL
+    Israel	Hebrew	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=HE-ISR
+    Italy	Italian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=IT-ITA
+    Japan	Japanese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=JA-JPN
+    Japan PAID VERSION	Japanese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=JA-JPNP
+    Kazakhstan	Kazakh	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=KK-KAZ
+    Kazakhstan	Russian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=RU-KAZ
+    Kenya	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-KEN
+    Korea, Republic of (South Korea)	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-KOR
+    Korea, Republic of (South Korea)	Korean	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=KO-KOR
+    Kosovo	Albanian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SQI-XKX
+    Kosovo	Serbian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SR-XKX
+    Kuwait	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-KWT
+    Kuwait	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-KWT
+    Kyrgyzstan	Kyrgyz	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=KY-KGZ
+    Kyrgyzstan	Russian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=RU-KGZ
+    Latvia	Latvian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=LV-LVA
+    Lebanon	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-LBN
+    Macedonia	Macedonian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=MK-MKD
+    Madagascar	French	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=FR-MDG
+    Malaysia	Bahasa Malaysia	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=MS-MYS
+    Malaysia	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-MYS
+    Mexico	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-MEX
+    Moldova	Romanian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=RO-MDA
+    Mongolia	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-MNG
+    Mongolia	Mongolian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=MN-MNG
+    Montenegro	Montenegrin	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=CNR-MNE
+    Morocco	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-MAR
+    Mozambique	Portuguese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-MOZ
+    Netherlands	Dutch	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=NL-NLD
+    Netherlands	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-NLD
+    Nigeria	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-NGA
+    Norway	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-NOR
+    Norway	Norwegian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=NO-NOR
+    Oman	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-OMN
+    Pakistan	Urdu	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=UR-PAK
+    Paraguay	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-PRY
+    Peru	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-PER
+    Philippines	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-PHL
+    Philippines	Tagalog	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=FIL-PHL
+    Poland	Polish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PL-POL
+    Portugal	Portuguese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-PRT
+    Qatar	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-QAT
+    Qatar	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-QAT
+    Romania	Romanian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=RO-ROU
+    Russia	Russian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=RU-RUS
+    Saudi Arabia	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-SAU
+    Senegal	French	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=FR-SEN
+    Serbia, Republic of	Serbian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SR-SRB
+    Singapore	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-SGP
+    Slovak Republic (Slovakia)	Slovak	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SK-SVK
+    Slovenia	Slovenian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SL-SVN
+    South Africa	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-ZAF
+    Spain	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-ESP
+    Sweden	Swedish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SV-SWE
+    Switzerland	French	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=FR-CHE
+    Switzerland	German	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=DE-CHE
+    Switzerland	Italian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=IT-CHE
+    Taiwan	Traditional Chinese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ZH-TWN
+    Thailand	Thai	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=TH-THA
+    Timor-Leste, Democratic Republic of	Portuguese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-TLS
+    Turkiye, Republic of	Turkish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=TR-TUR
+    Uganda	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-UGA
+    Ukraine	Ukrainian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=UK-UKR
+    United Arab Emirates	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-ARE
+    United Arab Emirates	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-ARE
+    United Kingdom of Great Britain and Northern Ireland	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-GBR
+    United States of America (including PR and all territories)	English (Default)	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN
+    United States of America (including PR and all territories)	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-US
+    Uruguay	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-URY
+    Uzbekistan	Russian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=RU-UZB
+    Uzbekistan	Uzbek	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=UZ-UZB
+    Yemen	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-YEM
+    Yemen	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-YEM
+    Zambia	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-ZMB
+    Zimbabwe	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-ZWE
+    Zimbabwe	Shona	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SN-ZWE
+      `.trim();
     
-      // Try to detect the visitor's locale and set the input's value
-      function detectLocale() {
-        const rawLocale =
-          (navigator.languages && navigator.languages.length
-            ? navigator.languages[0]
-            : navigator.language) || '';
-    
-        if (!rawLocale) return;               // nothing to do
-    
-        try {
-          // Parse e.g. "en-US" into its parts
-          const loc     = new Intl.Locale(rawLocale);
-          const langDn  = new Intl.DisplayNames([loc.baseName], { type: 'language' });
-          const regDn   = new Intl.DisplayNames([loc.baseName], { type: 'region' });
-    
-          const language = langDn.of(loc.language) || '';
-          const country  = loc.region ? (regDn.of(loc.region) || '') : '';
-    
-          if (country || language) {
-            input.value = country && language
-                          ? `${country} – ${language}`
-                          : (country || language);
-          }
-        } catch (e) {
-          /* Intl.Locale not supported — ignore */
-        }
-      }
-    
-      // Fill when the DOM is ready
-      window.addEventListener('DOMContentLoaded', detectLocale);
-    
-      // Make pressing Enter behave like clicking “Go”
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Enter') document.getElementById('goBtn').click();
+      /* turn that blob into [{display,url}] */
+      const items = raw.split('\n').map(line => {
+        const [country, lang, url] = line.split('\t');
+        return { display: `${country} – ${lang}`, url };
       });
     
-      // Demo action for the Go button
-      document.getElementById('goBtn').addEventListener('click', () => {
-        alert('You chose: ' + input.value);
+      /* ------------------------------------------------------------------
+       * 2. DOM refs
+       * ------------------------------------------------------------------ */
+      const inp   = document.getElementById('clInput');
+      const goBtn = document.getElementById('goBtn');
+      const pop   = document.getElementById('acPopup');
+    
+      /* ------------------------------------------------------------------
+       * 3. Live filtering & popup rendering
+       * ------------------------------------------------------------------ */
+      let active = -1;                // arrow-key highlight index
+    
+      inp.addEventListener('input', showMatches);
+      inp.addEventListener('keydown', keyNav);
+      document.addEventListener('click', e => {
+        if (!pop.contains(e.target) && e.target !== inp) pop.hidden = true;
+      });
+    
+      function showMatches(){
+        const q = inp.value.trim().toLowerCase();
+        pop.innerHTML = '';
+        active = -1;
+    
+        if (!q) { pop.hidden = true; return; }
+    
+        const matches = items.filter(i => i.display.toLowerCase().includes(q))
+                             .slice(0,12);            // soft cap
+        if (!matches.length){ pop.hidden = true; return;}
+    
+        matches.forEach((m,i) => {
+          const div = document.createElement('div');
+          div.className = 'ac-item';
+          div.textContent = m.display;
+          div.addEventListener('click', () => goTo(m.url));
+          pop.appendChild(div);
+        });
+        pop.hidden = false;
+      }
+    
+      function keyNav(e){
+        const rows = pop.children;
+        if (!rows.length) return;
+    
+        switch(e.key){
+          case 'ArrowDown':
+            active = (active + 1) % rows.length; break;
+          case 'ArrowUp':
+            active = (active - 1 + rows.length) % rows.length; break;
+          case 'Enter':
+            rows[active >=0 ? active : 0].click();
+            e.preventDefault();
+            return;
+          default: return;
+        }
+        Array.from(rows).forEach(r => r.classList.remove('ac-active'));
+        rows[active].classList.add('ac-active');
+        rows[active].scrollIntoView({block:'nearest'});
+        e.preventDefault();
+      }
+    
+      /* ------------------------------------------------------------------
+       * 4. “Go” button → use the first exact match
+       * ------------------------------------------------------------------ */
+      goBtn.addEventListener('click', () => {
+        const exact = items.find(i => i.display.toLowerCase() === inp.value.trim().toLowerCase());
+        if (exact) goTo(exact.url);
+        else alert('Please choose a country–language from the list.');
+      });
+    
+      function goTo(url){
+        window.location.href = url;   // or window.open(url,'_blank');
+      }
+    
+      /* ------------------------------------------------------------------
+       * 5. Optional: pre-fill from browser locale
+       * ------------------------------------------------------------------ */
+      window.addEventListener('DOMContentLoaded', () => {
+        const loc = navigator.languages?.[0] || navigator.language || '';
+        if (!loc) return;
+    
+        try{
+          const l = new Intl.Locale(loc);
+          const lang = new Intl.DisplayNames([l.baseName], {type:'language'}).of(l.language);
+          const reg  = l.region ? new Intl.DisplayNames([l.baseName], {type:'region'}).of(l.region) : '';
+          const guess = items.find(i => i.display.toLowerCase() === `${reg} – ${lang}`.toLowerCase());
+          if (guess) inp.value = guess.display;
+        }catch(_){}
       });
     })();
     </script>
