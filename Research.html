@@ -25,46 +25,68 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        /* layout */
-        .search-container{
-          display:inline-flex;
-          max-width:420px;
-          width:100%;
-          position:relative;            /* for absolute popup */
-        }
-        #countryLang{
-          flex:1;
-          padding:.55rem .6rem;
-          font-size:1rem;
-        }
-        #goBtn{
-          padding:.55rem 1rem;
-          font-size:1rem;
-          cursor:pointer;
+        :root{
+          --bg:  #fff7ea;
+          --bord:#004534;
+          --btn: #ffc73c;
         }
       
-        /* 👇 custom popup */
-        .ac-popup{
+        body{font-family:sans-serif;}
+      
+        /* ---------- centred wrapper ---------- */
+        .search-centre{
+          margin:60px auto;                    /* centres horizontally */
+          max-width:500px;
+          width:100%;
+          display:flex;
+          position:relative;
+        }
+      
+        /* ---------- pretty input ---------- */
+        #clInput{
+          flex:1;
+          padding:.8rem 1rem;
+          font-size:1rem;
+          background:var(--bg);
+          border:3px solid var(--bord);
+          border-right:none;
+          border-radius:32px 0 0 32px;
+          outline:none;
+        }
+      
+        /* ---------- pretty button ---------- */
+        #goBtn{
+          padding:.8rem 1.3rem;
+          font-size:1rem;
+          font-weight:600;
+          background:var(--btn);
+          color:var(--bord);
+          border:3px solid var(--bord);
+          border-left:none;
+          border-radius:0 32px 32px 0;
+          cursor:pointer;
+        }
+        #goBtn:hover{filter:brightness(1.05);}
+      
+        /* ---------- custom popup ---------- */
+        #acPopup{
           position:absolute;
           top:100%;
-          left:0;
-          right:0;
-          z-index:999;
+          left:0; right:0;
+          background:#fff;
           border:1px solid #ccc;
           border-top:0;
-          background:#fff;
-          max-height:240px;
+          max-height:260px;
           overflow-y:auto;
+          z-index:999;
           font-size:.95rem;
         }
         .ac-item{
-          padding:.55rem .6rem;
+          padding:.6rem 1rem;
           cursor:pointer;
         }
         .ac-item:hover,
-        .ac-active{
-          background:#f1f1f1;
-        }
+        .ac-active{background:#f2f2f2;}
       </style>
 </head>
 
@@ -891,102 +913,90 @@
     Zimbabwe	Shona	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SN-ZWE
       `.trim();
     
-      /* turn that blob into [{display,url}] */
-      const items = raw.split('\n').map(line => {
-        const [country, lang, url] = line.split('\t');
-        return { display: `${country} – ${lang}`, url };
-      });
-    
-      /* ------------------------------------------------------------------
-       * 2. DOM refs
-       * ------------------------------------------------------------------ */
-      const inp   = document.getElementById('clInput');
-      const goBtn = document.getElementById('goBtn');
-      const pop   = document.getElementById('acPopup');
-    
-      /* ------------------------------------------------------------------
-       * 3. Live filtering & popup rendering
-       * ------------------------------------------------------------------ */
-      let active = -1;                // arrow-key highlight index
-    
-      inp.addEventListener('input', showMatches);
-      inp.addEventListener('keydown', keyNav);
-      document.addEventListener('click', e => {
-        if (!pop.contains(e.target) && e.target !== inp) pop.hidden = true;
-      });
-    
-      function showMatches(){
-        const q = inp.value.trim().toLowerCase();
-        pop.innerHTML = '';
-        active = -1;
-    
-        if (!q) { pop.hidden = true; return; }
-    
-        const matches = items.filter(i => i.display.toLowerCase().includes(q))
-                             .slice(0,12);            // soft cap
-        if (!matches.length){ pop.hidden = true; return;}
-    
-        matches.forEach((m,i) => {
-          const div = document.createElement('div');
-          div.className = 'ac-item';
-          div.textContent = m.display;
-          div.addEventListener('click', () => goTo(m.url));
-          pop.appendChild(div);
-        });
-        pop.hidden = false;
-      }
-    
-      function keyNav(e){
-        const rows = pop.children;
-        if (!rows.length) return;
-    
-        switch(e.key){
-          case 'ArrowDown':
-            active = (active + 1) % rows.length; break;
-          case 'ArrowUp':
-            active = (active - 1 + rows.length) % rows.length; break;
-          case 'Enter':
-            rows[active >=0 ? active : 0].click();
-            e.preventDefault();
-            return;
-          default: return;
-        }
-        Array.from(rows).forEach(r => r.classList.remove('ac-active'));
-        rows[active].classList.add('ac-active');
-        rows[active].scrollIntoView({block:'nearest'});
-        e.preventDefault();
-      }
-    
-      /* ------------------------------------------------------------------
-       * 4. “Go” button → use the first exact match
-       * ------------------------------------------------------------------ */
-      goBtn.addEventListener('click', () => {
-        const exact = items.find(i => i.display.toLowerCase() === inp.value.trim().toLowerCase());
-        if (exact) goTo(exact.url);
-        else alert('Please choose a country–language from the list.');
-      });
-    
-      function goTo(url){
-        window.location.href = url;   // or window.open(url,'_blank');
-      }
-    
-      /* ------------------------------------------------------------------
-       * 5. Optional: pre-fill from browser locale
-       * ------------------------------------------------------------------ */
-      window.addEventListener('DOMContentLoaded', () => {
-        const loc = navigator.languages?.[0] || navigator.language || '';
-        if (!loc) return;
-    
-        try{
-          const l = new Intl.Locale(loc);
-          const lang = new Intl.DisplayNames([l.baseName], {type:'language'}).of(l.language);
-          const reg  = l.region ? new Intl.DisplayNames([l.baseName], {type:'region'}).of(l.region) : '';
-          const guess = items.find(i => i.display.toLowerCase() === `${reg} – ${lang}`.toLowerCase());
-          if (guess) inp.value = guess.display;
-        }catch(_){}
-      });
-    })();
-    </script>
+      const items = raw.split('\n').map(l => {
+    const [country, lang, url] = l.split('\t');
+    return {display:`${country} – ${lang}`, url, country, lang};
+  });
+
+  /* -------- 2. DOM refs -------- */
+  const inp   = document.getElementById('clInput');
+  const btn   = document.getElementById('goBtn');
+  const pop   = document.getElementById('acPopup');
+
+  /* -------- 3. Live suggestions -------- */
+  let active = -1;
+
+  inp.addEventListener('input', render);
+  inp.addEventListener('keydown', nav);
+  document.addEventListener('click', e=>{
+    if(!pop.contains(e.target)&&e.target!==inp) pop.hidden=true;
+  });
+
+  function render(){
+    const q = inp.value.trim().toLowerCase();
+    pop.innerHTML=''; active=-1;
+
+    if(!q){pop.hidden=true;return;}
+
+    const m = items.filter(i=>i.display.toLowerCase().includes(q)).slice(0,12);
+    if(!m.length){pop.hidden=true;return;}
+
+    m.forEach((o,i)=>{
+      const d=document.createElement('div');
+      d.className='ac-item';
+      d.textContent=o.display;
+      d.onclick=()=>go(o.url);
+      pop.appendChild(d);
+    });
+    pop.hidden=false;
+  }
+
+  function nav(e){
+    const rows=pop.children;
+    if(!rows.length) return;
+
+    switch(e.key){
+      case'ArrowDown':active=(active+1)%rows.length;break;
+      case'ArrowUp':active=(active-1+rows.length)%rows.length;break;
+      case'Enter':rows[active>=0?active:0].click();e.preventDefault();return;
+      default:return;
+    }
+    [...rows].forEach(r=>r.classList.remove('ac-active'));
+    rows[active].classList.add('ac-active');
+    rows[active].scrollIntoView({block:'nearest'});
+    e.preventDefault();
+  }
+
+  /* -------- 4. Go button -------- */
+  btn.onclick=()=>{
+    const exact=items.find(i=>i.display.toLowerCase()===inp.value.trim().toLowerCase());
+    if(exact) go(exact.url);
+    else alert('Please choose a country–language from the list.');
+  };
+
+  function go(u){window.location.href=u;}
+
+  /* -------- 5. Autofill from browser locale (improved) -------- */
+  window.addEventListener('DOMContentLoaded',()=>{
+    const loc=navigator.languages?.[0]||navigator.language||'';
+    if(!loc) return;
+
+    try{
+      const L=new Intl.Locale(loc);
+      const regEn = new Intl.DisplayNames(['en'],{type:'region'}).of(L.region||'')||'';
+      const langEn= new Intl.DisplayNames(['en'],{type:'language'}).of(L.language)||'';
+
+      const match =
+        items.find(i=>i.country.toLowerCase()===regEn.toLowerCase()
+                      && i.lang.toLowerCase()===langEn.toLowerCase())
+     || items.find(i=>i.country.toLowerCase().includes(regEn.toLowerCase()))
+     || items.find(i=>i.lang.toLowerCase()===langEn.toLowerCase());
+
+      if(match) inp.value=match.display;
+    }catch(_){}
+  });
+})();
+</script>
 </body>
 </html>
 
