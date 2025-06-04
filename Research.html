@@ -26,29 +26,24 @@
 
     <style>
         :root{
-          --bg:  #fff7ea;   /* input background   */
-          --bord:#004534;   /* green border/text  */
-          --btn: #ffc73c;   /* button background  */
+          --bg:#fff7ea;
+          --bord:#004534;
+          --btn:#ffc73c;
         }
         body{
           font-family:sans-serif;
           margin:0;
           display:flex;
-          justify-content:center;   /* horizontal centre */
+          justify-content:center;               /* centre horizontally */
         }
       
-        /* ---------- outer wrapper ---------- */
         .search-centre{
           margin:60px 0;
-          width:90vw;               /* grow/shrink with screen */
+          width:90vw;                           /* widen/shrink with screen */
           max-width:900px;
         }
       
-        /* ---------- flex row (input + button) ---------- */
-        .search-row{
-          display:flex;
-          position:relative;
-        }
+        .search-row{display:flex;}
         #clInput{
           flex:1;
           padding:1rem 1.2rem;
@@ -72,7 +67,7 @@
         }
         #goBtn:hover{filter:brightness(1.05);}
       
-        /* ---------- suggestions list ---------- */
+        /* suggestions list (regular flow, not overlay) */
         #acList{
           list-style:none;
           margin:0;
@@ -82,7 +77,7 @@
           max-height:300px;
           overflow-y:auto;
           font-size:.95rem;
-          display:none;             /* hidden until we have matches */
+          display:none;
         }
         #acList li{
           padding:.7rem 1.2rem;
@@ -932,7 +927,7 @@ const btn  = document.getElementById('goBtn');
 const list = document.getElementById('acList');
 
 /* ------------------------------------------------------------------
-   3.  Auto-fill by **country only**
+   3.  Auto-fill by **country only** (inclusive match)
 ------------------------------------------------------------------ */
 let autoChoice = null;
 let autoFilled = false;
@@ -942,12 +937,13 @@ window.addEventListener('DOMContentLoaded', () => {
   if (!loc) return;
 
   try{
-    const L       = new Intl.Locale(loc);
-    const region  = L.region
-      ? new Intl.DisplayNames(['en'],{type:'region'}).of(L.region)
-      : '';
+    const L = new Intl.Locale(loc);
+    if (!L.region) return;                       // no region? stop.
 
-    autoChoice = items.find(i => i.country.toLowerCase() === region.toLowerCase()) || null;
+    const regionName = new Intl.DisplayNames(['en'],{type:'region'}).of(L.region);
+    const regionLC   = regionName.toLowerCase();
+
+    autoChoice = items.find(i => i.country.toLowerCase().includes(regionLC)) || null;
 
     if (autoChoice){
       inp.value   = autoChoice.display;
@@ -967,7 +963,7 @@ inp.addEventListener('focus', () => {
 });
 
 /* ------------------------------------------------------------------
-   4.  Live suggestions list
+   4.  Live suggestions
 ------------------------------------------------------------------ */
 let activeIndex = -1;
 
