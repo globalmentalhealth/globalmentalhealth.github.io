@@ -799,17 +799,17 @@
        * 1. RAW LOOK-UP TABLE  (tab-separated, exactly as you pasted it)
        * ------------------------------------------------------------------ */
       const raw = `
-    Albania	Albanian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SQI-ALB
-    Algeria	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-DZA
-    Angola	Portuguese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-AGO
-    Argentina	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-ARG
-    Armenia	Armenian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AM-ARM
+    Albania/Shqipëri	Albanian/Shqip	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SQI-ALB
+    Algeria/الجزائر	Arabic/العربية	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-DZA
+    Angola	Portuguese/Português	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-AGO
+    Argentina	Spanish/Español	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-ARG
+    Armenia/Հայաստան	Armenian/հայերեն	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AM-ARM
     Australia	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-AUS
-    Austria	German	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=DE-AUT
-    Bahrain	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-BHR
+    Austria/Österreich	German/Deutsch	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=DE-AUT
+    Bahrain/البحرين	Arabic/عربي	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-BHR
     Bahrain	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-BHR
-    Bangladesh	Bangla	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=BN-BGD
-    Bolivia	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-BOL
+    Bangladesh/বাংলাদেশ	Bangla/বাংলা	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=BN-BGD
+    Bolivia	Spanish/Español	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-BOL
     Bosnia-Herzegovina	Bosnian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=BS-BIH
     Brazil	Portuguese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-BRA
     Bulgaria	Bulgarian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=BG-BGR
@@ -922,180 +922,117 @@
     Zimbabwe	Shona	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SN-ZWE
       `.trim();
     
-      // Create a mapping of native names for countries and languages
-  const nativeNames = {
-    // Countries
-    'Germany': ['Deutschland'],
-    'Spain': ['España'],
-    'France': ['France', 'Francia'],
-    'Italy': ['Italia'],
-    'Japan': ['日本', 'Nihon', 'Nippon'],
-    'China': ['中国', 'Zhōngguó'],
-    'Korea, Republic of (South Korea)': ['한국', 'Hanguk', '대한민국', 'Daehan Minguk'],
-    'Greece': ['Ελλάδα', 'Ellada'],
-    'Russia': ['Россия', 'Rossiya'],
-    'Egypt': ['مصر', 'Misr'],
-    'Israel': ['ישראל', 'Yisrael'],
-    'Saudi Arabia': ['المملكة العربية السعودية', 'Al-Mamlakah al-ʿArabīyah as-Saʿūdīyah'],
-    'India': ['भारत', 'Bharat'],
-    'Thailand': ['ประเทศไทย', 'Prathet Thai'],
-    // Languages
-    'German': ['Deutsch'],
-    'Spanish': ['Español'],
-    'French': ['Français'],
-    'Italian': ['Italiano'],
-    'Japanese': ['日本語', 'Nihongo'],
-    'Mandarin': ['普通话', 'Putonghua'],
-    'Korean': ['한국어', 'Hangugeo'],
-    'Greek': ['Ελληνικά', 'Ellinika'],
-    'Russian': ['Русский', 'Russkiy'],
-    'Arabic': ['العربية', 'Al-Arabiyyah'],
-    'Hebrew': ['עברית', 'Ivrit'],
-    'Hindi': ['हिन्दी', 'Hindī'],
-    'Thai': ['ภาษาไทย', 'Phasa Thai']
-  };
+      const items = raw.split('\n').map(l=>{
+  const [country, lang, url] = l.split('\t');
+  return {display:`${country} – ${lang}`, country, lang, url};
+});
 
-  const items = raw.split('\n').map(l=>{
-    const [country, lang, url] = l.split('\t');
-    return {display:`${country} – ${lang}`, country, lang, url};
-  });
+/* ------------------------------------------------------------------
+   2.  DOM refs
+------------------------------------------------------------------ */
+const inp  = document.getElementById('clInput');
+const btn  = document.getElementById('goBtn');
+const list = document.getElementById('acList');
 
-  /* ------------------------------------------------------------------
-     2.  DOM refs
-  ------------------------------------------------------------------ */
-  const inp  = document.getElementById('clInput');
-  const btn  = document.getElementById('goBtn');
-  const list = document.getElementById('acList');
+/* ------------------------------------------------------------------
+   3.  Auto-fill by **country only** (inclusive match)
+------------------------------------------------------------------ */
+let autoChoice = null;
+let autoFilled = false;
 
-  /* ------------------------------------------------------------------
-     3.  Auto-fill by **country only** (inclusive match)
-  ------------------------------------------------------------------ */
-  let autoChoice = null;
-  let autoFilled = false;
+window.addEventListener('DOMContentLoaded', () => {
+  const loc = navigator.languages?.[0] || navigator.language || '';
+  if (!loc) return;
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const loc = navigator.languages?.[0] || navigator.language || '';
-    if (!loc) return;
+  try{
+    const L = new Intl.Locale(loc);
+    if (!L.region) return;                       // no region? stop.
 
-    try{
-      const L = new Intl.Locale(loc);
-      if (!L.region) return;                       // no region? stop.
+    const regionName = new Intl.DisplayNames(['en'],{type:'region'}).of(L.region);
+    const regionLC   = regionName.toLowerCase();
 
-      const regionName = new Intl.DisplayNames(['en'],{type:'region'}).of(L.region);
-      const regionLC   = regionName.toLowerCase();
+    autoChoice = items.find(i => i.country.toLowerCase().includes(regionLC)) || null;
 
-      autoChoice = items.find(i => i.country.toLowerCase().includes(regionLC)) || null;
-
-      if (autoChoice){
-        inp.value   = autoChoice.display;
-        autoFilled  = true;
-      }
-    }catch(_){}
-  });
-
-  /* clear autofill on first focus */
-  inp.addEventListener('focus', () => {
-    if (autoFilled){
-      inp.value   = '';
-      autoFilled  = false;
-      autoChoice  = null;
-      hideList();
+    if (autoChoice){
+      inp.value   = autoChoice.display;
+      autoFilled  = true;
     }
-  });
+  }catch(_){}
+});
 
-  /* ------------------------------------------------------------------
-     4.  Live suggestions
-  ------------------------------------------------------------------ */
-  let activeIndex = -1;
-
-  inp.addEventListener('input', updateList);
-  inp.addEventListener('keydown', keyNav);
-  document.addEventListener('click', e=>{
-    if (!list.contains(e.target) && e.target !== inp) hideList();
-  });
-
-  function updateList(){
-    const q = inp.value.trim().toLowerCase();
-    list.innerHTML = '';
-    activeIndex = -1;
-
-    if (!q){ hideList(); return; }
-
-    // Check for matches in native names first
-    const nativeMatches = [];
-    for (const [key, names] of Object.entries(nativeNames)) {
-      if (names.some(name => name.toLowerCase().includes(q))) {
-        // Find all items that match either the country or language
-        const matchedItems = items.filter(i => 
-          i.country === key || i.lang === key
-        );
-        nativeMatches.push(...matchedItems);
-      }
-    }
-
-    // Regular matches (original functionality)
-    const regularMatches = items.filter(i => 
-      i.display.toLowerCase().includes(q) || 
-      i.country.toLowerCase().includes(q) || 
-      i.lang.toLowerCase().includes(q)
-    ).slice(0, 12 - nativeMatches.length);
-
-    // Combine matches, removing duplicates
-    const allMatches = [...nativeMatches, ...regularMatches];
-    const uniqueMatches = allMatches.filter((item, index, self) =>
-      index === self.findIndex((t) => (
-        t.country === item.country && t.lang === item.lang
-      ))
-    ).slice(0, 12);
-
-    if (!uniqueMatches.length){ hideList(); return; }
-
-    uniqueMatches.forEach((m,i) => {
-      const li = document.createElement('li');
-      li.textContent = m.display;
-      li.onclick     = () => go(m.url);
-      list.appendChild(li);
-    });
-    showList();
+/* clear autofill on first focus */
+inp.addEventListener('focus', () => {
+  if (autoFilled){
+    inp.value   = '';
+    autoFilled  = false;
+    autoChoice  = null;
+    hideList();
   }
+});
 
-  function keyNav(e){
-    const rows = [...list.children];
-    if (!rows.length) return;
+/* ------------------------------------------------------------------
+   4.  Live suggestions
+------------------------------------------------------------------ */
+let activeIndex = -1;
 
-    switch(e.key){
-      case 'ArrowDown': activeIndex = (activeIndex + 1) % rows.length; break;
-      case 'ArrowUp':   activeIndex = (activeIndex - 1 + rows.length) % rows.length; break;
-      case 'Enter':
-        rows[activeIndex >= 0 ? activeIndex : 0].click();
-        e.preventDefault();
-        return;
-      default: return;
-    }
-    rows.forEach(r => r.classList.remove('ac-active'));
-    rows[activeIndex].classList.add('ac-active');
-    rows[activeIndex].scrollIntoView({block:'nearest'});
-    e.preventDefault();
+inp.addEventListener('input', updateList);
+inp.addEventListener('keydown', keyNav);
+document.addEventListener('click', e=>{
+  if (!list.contains(e.target) && e.target !== inp) hideList();
+});
+
+function updateList(){
+  const q = inp.value.trim().toLowerCase();
+  list.innerHTML = '';
+  activeIndex = -1;
+
+  if (!q){ hideList(); return; }
+
+  const matches = items.filter(i => i.display.toLowerCase().includes(q)).slice(0,12);
+  if (!matches.length){ hideList(); return; }
+
+  matches.forEach((m,i) => {
+    const li = document.createElement('li');
+    li.textContent = m.display;
+    li.onclick     = () => go(m.url);
+    list.appendChild(li);
+  });
+  showList();
+}
+
+function keyNav(e){
+  const rows = [...list.children];
+  if (!rows.length) return;
+
+  switch(e.key){
+    case 'ArrowDown': activeIndex = (activeIndex + 1) % rows.length; break;
+    case 'ArrowUp':   activeIndex = (activeIndex - 1 + rows.length) % rows.length; break;
+    case 'Enter':
+      rows[activeIndex >= 0 ? activeIndex : 0].click();
+      e.preventDefault();
+      return;
+    default: return;
   }
+  rows.forEach(r => r.classList.remove('ac-active'));
+  rows[activeIndex].classList.add('ac-active');
+  rows[activeIndex].scrollIntoView({block:'nearest'});
+  e.preventDefault();
+}
 
-  function showList(){ list.style.display = 'block'; }
-  function hideList(){ list.style.display = 'none'; }
+function showList(){ list.style.display = 'block'; }
+function hideList(){ list.style.display = 'none'; }
 
-  /* ------------------------------------------------------------------
-     5.  Go button
-  ------------------------------------------------------------------ */
-  btn.onclick = () => {
-    const typed  = inp.value.trim().toLowerCase();
-    const choice = items.find(i => 
-      i.display.toLowerCase() === typed ||
-      (nativeNames[i.country] && nativeNames[i.country].some(n => n.toLowerCase() === typed)) ||
-      (nativeNames[i.lang] && nativeNames[i.lang].some(n => n.toLowerCase() === typed))
-    ) || autoChoice;
-    if (choice) go(choice.url);
-    else alert('Please choose a country–language from the list.');
-  };
+/* ------------------------------------------------------------------
+   5.  Go button
+------------------------------------------------------------------ */
+btn.onclick = () => {
+  const typed  = inp.value.trim().toLowerCase();
+  const choice = items.find(i => i.display.toLowerCase() === typed) || autoChoice;
+  if (choice) go(choice.url);
+  else alert('Please choose a country–language from the list.');
+};
 
-  function go(url){ window.location.href = url; }
+function go(url){ window.location.href = url; }
 })();
 </script>
 </body>
