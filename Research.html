@@ -798,13 +798,13 @@
        * 1. RAW LOOK-UP TABLE  (tab-separated, exactly as you pasted it)
        * ------------------------------------------------------------------ */
       const raw = `
-    Albania	Albanian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SQI-ALB
-    Algeria	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-DZA
-    Angola	Portuguese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-AGO
-    Argentina	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-ARG
-    Armenia	Armenian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AM-ARM
+    Albania	Albanian Shqipëri (Shqip) https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SQI-ALB
+    Algeria	Arabic الجزائر (العربية) https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-DZA
+    Angola	Portuguese (Português) https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-AGO
+    Argentina	Spanish (Español) https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-ARG
+    Armenia	Armenian Հայաստան (հայերեն) https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AM-ARM
     Australia	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-AUS
-    Austria	German	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=DE-AUT
+    Austria	German Österreich (Deutsch)	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=DE-AUT
     Bahrain	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-BHR
     Bahrain	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-BHR
     Bangladesh	Bangla	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=BN-BGD
@@ -927,241 +927,111 @@
 });
 
 /* ------------------------------------------------------------------
-   2.  SYNONYMS  (country & language native spellings → English list name)
-       Extend as needed.
------------------------------------------------------------------- */
-const countrySyn = {
-  'españa':'Spain',
-  'brasil':'Brazil',
-  'méxico':'Mexico',
-  'deutschland':'Germany',
-  'österreich':'Austria',
-  'suisse':'Switzerland', 'schweiz':'Switzerland', 'suiza':'Switzerland',
-  'türkiye':'Turkiye, Republic of', 'turkiye':'Turkiye, Republic of',
-  'estados unidos':'United States of America (including PR and all territories)',
-  'българия': 'Bulgaria',
-  'الجزائر': 'Algeria',
-  'البحرين': 'Bahrain',
-  'বাংলাদেশ': 'Bangladesh',
-  'bosna i hercegovina': 'Bosnia-Herzegovina',
-  'česká republika': 'Czech Republic',
-  'crna gora': 'Montenegro',
-  'danmark': 'Denmark',
-  'eesti': 'Estonia',
-  'مصر': 'Egypt',
-  'ελλάδα': 'Greece',
-  'საქართველო': 'Georgia, Republic of',
-  '香港': 'Hong Kong',
-  'hrvatska': 'Croatia',
-  'italia': 'Italy',
-  'भारत': 'India',
-  'қазақстан': 'Kazakhstan',
-  'казахстан': 'Kazakhstan',
-  'кыргыз республикасы': 'Kyrgyzstan',
-  'кыргызская республика': 'Kyrgyzstan',
-  '대한민국': 'Korea, Republic of (South Korea)',
-  'κύπρος': 'Cyprus',
-  'latvija': 'Latvia',
-  'لبنان': 'Lebanon',
-  'moçambique': 'Mozambique',
-  'монгол улс': 'Mongolia',
-  'nederland': 'Netherlands',
-  'norge': 'Norway',
-  "o'zbekiston": 'Uzbekistan',
-  'uzbekistan': 'Uzbekistan',          /* plain-ASCII helper */
-  'узбекистан': 'Uzbekistan',
-  'عُمان': 'Oman',
-  'قطر': 'Qatar',
-  'republica moldova': 'Moldova',
-  'românia': 'Romania',
-  'россия': 'Russia',
-  'السعودية': 'Saudi Arabia',
-  'sénégal': 'Senegal',
-  'shqipëri': 'Albania',
-  'slovenija': 'Slovenia',
-  'slovensko': 'Slovak Republic (Slovakia)',
-  'srbija': 'Serbia, Republic of',
-  'suomi': 'Finland',
-  'svizzera': 'Switzerland',
-  'sverige': 'Sweden',
-  'tchad': 'Chad',
-  'تشاد': 'Chad',
-  'україна': 'Ukraine',
-  'الإمارات العربية المتحدة': 'United Arab Emirates',
-  'اليمن': 'Yemen',
-  'perú': 'Peru',
-  'pilipinas': 'Philippines',
-  'polska': 'Poland',
-  'বাংলাদেশ': 'Bangladesh',
-  'ایران': 'Iran',
-  'pakistan': 'Pakistan',
-  'ประเทศไทย': 'Thailand',
-  '中国': 'China',
-  '日本': 'Japan',
-  '臺灣': 'Taiwan',
-  'uk': 'United Kingdom of Great Britain and Northern Ireland'
-};
-const langSyn = {
-  'español':'Spanish',
-  'português':'Portuguese', 
-  'deutsch':'German',
-  'français':'French',
-  'italiano':'Italian',
-  'русский':'Russian',
-  'العربية': 'Arabic',
-  'عربي': 'Arabic',
-  'اللغة العربية': 'Arabic',
-  'bahasa indonesia': 'Bahasa Indonesia',
-  'bahasa melayu': 'Bahasa Malaysia',
-  'български': 'Bulgarian',
-  'bosanski': 'Bosnian',
-  'čeština': 'Czech',
-  'crnogorski': 'Montenegrin',
-  'dansk': 'Danish',
-  'eesti': 'Estonian',
-  'ελληνικά': 'Greek',
-  'ქართული': 'Georgian',
-  'hrvatski': 'Croatian',
-  'हिन्दी': 'Hindi',
-  'magyar': 'Hungarian',
-  'македонски': 'Macedonian',
-  'o\'zbek': 'Uzbek',
-  'қазақ': 'Kazakh',
-  'кыргыз': 'Kyrgyz',
-  '한국어': 'Korean',
-  'shqip': 'Albanian',
-  'slovenčina': 'Slovak',
-  'slovenščina': 'Slovenian',
-  'srpski': 'Serbian',
-  'suomi': 'Finnish',
-  'svenska': 'Swedish',
-  'tagalog': 'Filipino',
-  'türkçe': 'Turkish',
-  'українська': 'Ukrainian',
-  'فارسی': 'Persian',
-  'اُردو': 'Urdu',
-  'বাংলা': 'Bengali',
-  'ไทย': 'Thai',
-  '简体中文': 'Mandarin',
-  '繁體中文': 'Traditional Chinese',
-  '日本語': 'Japanese',
-  'pусский': 'Russian' 
-};
-
-/* helper: strip accents/diacritics */
-const strip = s => s.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLowerCase();
-
-/* ------------------------------------------------------------------
-   3.  DOM
+   2.  DOM refs
 ------------------------------------------------------------------ */
 const inp  = document.getElementById('clInput');
 const btn  = document.getElementById('goBtn');
 const list = document.getElementById('acList');
 
 /* ------------------------------------------------------------------
-   4.  AUTO-FILL (country-only, inclusive match)
+   3.  Auto-fill by **country only** (inclusive match)
 ------------------------------------------------------------------ */
-let autoChoice=null, autoFilled=false;
+let autoChoice = null;
+let autoFilled = false;
 
-window.addEventListener('DOMContentLoaded',()=>{
+window.addEventListener('DOMContentLoaded', () => {
   const loc = navigator.languages?.[0] || navigator.language || '';
-  if(!loc) return;
+  if (!loc) return;
+
   try{
     const L = new Intl.Locale(loc);
-    if(!L.region) return;
-    const regName = new Intl.DisplayNames(['en'],{type:'region'}).of(L.region);
-    const regLC   = strip(regName);
-    autoChoice = items.find(i=>strip(i.country).includes(regLC))||null;
-    if(autoChoice){
-      inp.value=autoChoice.display;
-      autoFilled=true;
+    if (!L.region) return;                       // no region? stop.
+
+    const regionName = new Intl.DisplayNames(['en'],{type:'region'}).of(L.region);
+    const regionLC   = regionName.toLowerCase();
+
+    autoChoice = items.find(i => i.country.toLowerCase().includes(regionLC)) || null;
+
+    if (autoChoice){
+      inp.value   = autoChoice.display;
+      autoFilled  = true;
     }
   }catch(_){}
 });
 
-/* wipe autofill on first focus */
-inp.addEventListener('focus',()=>{
-  if(autoFilled){
-    inp.value='';autoFilled=false;autoChoice=null;
+/* clear autofill on first focus */
+inp.addEventListener('focus', () => {
+  if (autoFilled){
+    inp.value   = '';
+    autoFilled  = false;
+    autoChoice  = null;
     hideList();
   }
 });
 
 /* ------------------------------------------------------------------
-   5.  LIVE SUGGESTIONS (supports synonyms & diacritics)
+   4.  Live suggestions
 ------------------------------------------------------------------ */
-let active=-1;
+let activeIndex = -1;
 
-inp.addEventListener('input',updateList);
-inp.addEventListener('keydown',nav);
-document.addEventListener('click',e=>{
-  if(!list.contains(e.target)&&e.target!==inp) hideList();
+inp.addEventListener('input', updateList);
+inp.addEventListener('keydown', keyNav);
+document.addEventListener('click', e=>{
+  if (!list.contains(e.target) && e.target !== inp) hideList();
 });
 
 function updateList(){
-  const qRaw = inp.value.trim();
-  const q = strip(qRaw);
-  list.innerHTML='';active=-1;
-  if(!q){hideList();return;}
+  const q = inp.value.trim().toLowerCase();
+  list.innerHTML = '';
+  activeIndex = -1;
 
-  const matches = items.filter(i=>strip(i.display).includes(q));
+  if (!q){ hideList(); return; }
 
-  /* add synonym matches if none found */
-  if(!matches.length){
-    const cSyn = Object.keys(countrySyn).find(s=>strip(s).startsWith(q));
-    const lSyn = Object.keys(langSyn).find(s=>strip(s).startsWith(q));
-    if(cSyn){
-      matches.push(...items.filter(i=>i.country===countrySyn[cSyn]));
-    }
-    if(lSyn){
-      matches.push(...items.filter(i=>i.lang===langSyn[lSyn]));
-    }
-  }
+  const matches = items.filter(i => i.display.toLowerCase().includes(q)).slice(0,12);
+  if (!matches.length){ hideList(); return; }
 
-  const top = matches.slice(0,12);
-  if(!top.length){hideList();return;}
-
-  top.forEach((m,i)=>{
-    const li=document.createElement('li');
-    li.textContent=m.display;
-    li.onclick=()=>go(m.url);
+  matches.forEach((m,i) => {
+    const li = document.createElement('li');
+    li.textContent = m.display;
+    li.onclick     = () => go(m.url);
     list.appendChild(li);
   });
   showList();
 }
 
-function nav(e){
-  const rows=[...list.children];
-  if(!rows.length) return;
+function keyNav(e){
+  const rows = [...list.children];
+  if (!rows.length) return;
+
   switch(e.key){
-    case'ArrowDown':active=(active+1)%rows.length;break;
-    case'ArrowUp':active=(active-1+rows.length)%rows.length;break;
-    case'Enter':
-      rows[active>=0?active:0].click();e.preventDefault();return;
-    default:return;
+    case 'ArrowDown': activeIndex = (activeIndex + 1) % rows.length; break;
+    case 'ArrowUp':   activeIndex = (activeIndex - 1 + rows.length) % rows.length; break;
+    case 'Enter':
+      rows[activeIndex >= 0 ? activeIndex : 0].click();
+      e.preventDefault();
+      return;
+    default: return;
   }
-  rows.forEach(r=>r.classList.remove('ac-active'));
-  rows[active].classList.add('ac-active');
-  rows[active].scrollIntoView({block:'nearest'});
+  rows.forEach(r => r.classList.remove('ac-active'));
+  rows[activeIndex].classList.add('ac-active');
+  rows[activeIndex].scrollIntoView({block:'nearest'});
   e.preventDefault();
 }
-function showList(){list.style.display='block';}
-function hideList(){list.style.display='none';}
+
+function showList(){ list.style.display = 'block'; }
+function hideList(){ list.style.display = 'none'; }
 
 /* ------------------------------------------------------------------
-   6.  GO BUTTON
+   5.  Go button
 ------------------------------------------------------------------ */
-btn.onclick=()=>{
-  const typed = strip(inp.value);
-  const direct = items.find(i=>strip(i.display)===typed);
-  const synCountry = countrySyn[typed] ? items.find(i=>i.country===countrySyn[typed]) : null;
-  const synLang    = langSyn[typed]    ? items.find(i=>i.lang   ===langSyn[typed])    : null;
-  const choice = direct || synCountry || synLang || autoChoice;
-  if(choice) go(choice.url);
+btn.onclick = () => {
+  const typed  = inp.value.trim().toLowerCase();
+  const choice = items.find(i => i.display.toLowerCase() === typed) || autoChoice;
+  if (choice) go(choice.url);
   else alert('Please choose a country–language from the list.');
 };
-function go(u){window.location.href=u;}
 
+function go(url){ window.location.href = url; }
 })();
 </script>
 </body>
