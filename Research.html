@@ -798,13 +798,13 @@
        * 1. RAW LOOK-UP TABLE  (tab-separated, exactly as you pasted it)
        * ------------------------------------------------------------------ */
       const raw = `
-    Albania	Albanian Shqipëri (Shqip) https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SQI-ALB
-    Algeria	Arabic الجزائر (العربية) https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-DZA
-    Angola	Portuguese (Português) https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-AGO
-    Argentina	Spanish (Español) https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-ARG
-    Armenia	Armenian Հայաստան (հայերեն) https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AM-ARM
+    Albania	Albanian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SQI-ALB	Shqipëri (Shqip)
+    Algeria	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-DZA	الجزائر (العربية) 
+    Angola	Portuguese	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-AGO	(Português) 
+    Argentina	Spanish	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-ARG	(Español) 
+    Armenia	Armenian	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AM-ARM	Հայաստան (հայերեն) 
     Australia	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-AUS
-    Austria	German Österreich (Deutsch)	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=DE-AUT
+    Austria	German	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=DE-AUT	Österreich (Deutsch)	
     Bahrain	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-BHR
     Bahrain	English	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-BHR
     Bangladesh	Bangla	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=BN-BGD
@@ -923,7 +923,7 @@
     
       const items = raw.split('\n').map(l=>{
   const [country, lang, url] = l.split('\t');
-  return {display:`${country} – ${lang}`, country, lang, url};
+  return {display:`${country} – ${lang}`, country, lang, url, info};
 });
 
 /* ------------------------------------------------------------------
