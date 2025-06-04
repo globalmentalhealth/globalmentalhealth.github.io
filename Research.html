@@ -24,6 +24,24 @@
 
     <link rel="stylesheet" href="style.css">
 
+    <style>
+        /* simple horizontal layout */
+        .search-container{
+          display:inline-flex;
+          max-width:420px;
+          width:100%;
+        }
+        #countryLang{
+          flex:1;
+          padding:8px;
+          font-size:1rem;
+        }
+        #goBtn{
+          padding:8px 16px;
+          font-size:1rem;
+          cursor:pointer;
+        }
+      </style>
 </head>
 
 <body>
@@ -66,7 +84,7 @@
                         </div>
                         
                         <div class="lantop_left ">
-                            <h1 class="lantop_title">We aim to better <a class="higlight_text_t starter">well-being</a> across societies.</h1>
+                            <h1 class="lantop_title">We aim to better understand <a class="higlight_text_t starter">well-being</a> across societies.</h1>
                         </div>
                         
                         <div class="container_lotus2">
@@ -81,14 +99,25 @@
             
                 
                 <art class="bold_text themew">
-                
-                    <header class="wellb">
-                        <div class="wellb_content">
-                            <div class="wellb_hf">
-                                <p class="wellb_more">Where are you currently living?</p>
-                            </div>
-                        </div>
-                    </header>
+                    <div class="search-container">
+                        <input id="countryLang"
+                               list="countryLangList"
+                               placeholder="Write your country and language">
+                        <button id="goBtn">Go</button>
+                      </div>
+                      
+                      <!-- 🔽 Expand this list as needed (or build it in JS) -->
+                      <datalist id="countryLangList">
+                        <option value="United States – English">
+                        <option value="United States – Español">
+                        <option value="United Kingdom – English">
+                        <option value="Netherlands – Nederlands">
+                        <option value="France – Français">
+                        <option value="España – Español">
+                        <option value="Deutschland – Deutsch">
+                        <option value="日本 – 日本語">
+                        <option value="中国 – 中文">
+                      </datalist>
 
                     <section class="ct-block block-rect_areas alignfull">
                 
@@ -270,7 +299,7 @@
                             <li class="rect_area" data-country="Hong Kong">
                                 <h3 class="rect_area_title"><a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-HKG">Hong Kong</h3>
                                 <div class="rect_area_text">
-                                    <p>Languages available: English</a> and <a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ZH-HKG">Traditional Chinese</a></p>
+                                    <p>Languages available: English</a> and <a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ZH-HKG">Chinese</a></p>
                                 </div>
                             </li>
                             <li class="rect_area" data-country="Hungary">
@@ -334,7 +363,7 @@
                                 </div>
                             </li>
                             <li class="rect_area" data-country="Republic of Korea">
-                                <h3 class="rect_area_title"><a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-KOR">Korea, Republic of</h3>
+                                <h3 class="rect_area_title"><a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-KOR">South Korea</h3>
                                 <div class="rect_area_text">
                                     <p>Languages available: English</a> and <a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=KO-KOR">Korean</a></p>
                                 </div>
@@ -574,7 +603,7 @@
                                 </div>
                             </li>
                             <li class="rect_area" data-country="Democratic Republic of Timor-Leste">
-                                <h3 class="rect_area_title"><a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-TLS">Timor-Leste, Democratic Republic of</h3>
+                                <h3 class="rect_area_title"><a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=PT-TLS">Timor-Leste</h3>
                                 <div class="rect_area_text">
                                     <p>Language available: Portuguese</a></p>
                                 </div>
@@ -598,19 +627,19 @@
                                 </div>
                             </li>
                             <li class="rect_area" data-country="United Arab Emirates">
-                                <h3 class="rect_area_title"><a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-ARE">United Arab Emirates</h3>
+                                <h3 class="rect_area_title"><a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-ARE">UAE</h3>
                                 <div class="rect_area_text">
                                     <p>Languages available: Arabic</a> and <a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-ARE">English</a></p>
                                 </div>
                             </li>
                             <li class="rect_area" data-country="United Kingdom of Great Britain and Northern Ireland">
-                                <h3 class="rect_area_title"><a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-GBR">United Kingdom of Great Britain and Northern Ireland</h3>
+                                <h3 class="rect_area_title"><a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN-GBR">UK</h3>
                                 <div class="rect_area_text">
                                     <p>Language available: English</a></p>
                                 </div>
                             </li>
                             <li class="rect_area" data-country="United States of America">
-                                <h3 class="rect_area_title"><a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN">United States of America (including PR and all territories)</h3>
+                                <h3 class="rect_area_title"><a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=EN">USA</h3>
                                 <div class="rect_area_text">
                                     <p>Languages available: English</a> and <a href = "https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=ES-US">Spanish</a></p>
                                 </div>
@@ -650,9 +679,9 @@
                 
                 
                 
-                    <section class="ct-block alignfull">
+                    <section class="ct-block alignfull" style="padding-top: 100px;">
                         <div class="bpi_area">
-                            <div class="bpi_lef">
+                            <div class="bpi_lef"><p></p><p></p>
                                 <div class="textpi_title">
                                     Principal Investigator
                                 </div>
@@ -721,7 +750,52 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.6/dist/umd/popper.min.js"></script>
-<script src="reorder-by-country.js"></script>
+<script>
+    (function () {
+      const input = document.getElementById('countryLang');
+    
+      // Try to detect the visitor's locale and set the input's value
+      function detectLocale() {
+        const rawLocale =
+          (navigator.languages && navigator.languages.length
+            ? navigator.languages[0]
+            : navigator.language) || '';
+    
+        if (!rawLocale) return;               // nothing to do
+    
+        try {
+          // Parse e.g. "en-US" into its parts
+          const loc     = new Intl.Locale(rawLocale);
+          const langDn  = new Intl.DisplayNames([loc.baseName], { type: 'language' });
+          const regDn   = new Intl.DisplayNames([loc.baseName], { type: 'region' });
+    
+          const language = langDn.of(loc.language) || '';
+          const country  = loc.region ? (regDn.of(loc.region) || '') : '';
+    
+          if (country || language) {
+            input.value = country && language
+                          ? `${country} – ${language}`
+                          : (country || language);
+          }
+        } catch (e) {
+          /* Intl.Locale not supported — ignore */
+        }
+      }
+    
+      // Fill when the DOM is ready
+      window.addEventListener('DOMContentLoaded', detectLocale);
+    
+      // Make pressing Enter behave like clicking “Go”
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') document.getElementById('goBtn').click();
+      });
+    
+      // Demo action for the Go button
+      document.getElementById('goBtn').addEventListener('click', () => {
+        alert('You chose: ' + input.value);
+      });
+    })();
+    </script>
 </body>
 </html>
 
