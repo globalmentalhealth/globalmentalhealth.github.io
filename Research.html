@@ -26,27 +26,31 @@
 
     <style>
         :root{
-          --bg:  #fff7ea;
-          --bord:#004534;
-          --btn: #ffc73c;
+          --bg:#fff7ea;     /* input background   */
+          --bord:#004534;   /* green border/text  */
+          --btn:#ffc73c;    /* button background  */
         }
+        body{font-family:sans-serif;margin:0;padding:0;display:flex;justify-content:center;}
       
-        body{font-family:sans-serif;}
-      
-        /* ---------- centred wrapper ---------- */
+        /* -------- centred wrapper -------- */
         .search-centre{
-          margin:60px auto;                    /* centres horizontally */
-          max-width:500px;
+          margin:60px 4%;
           width:100%;
+          max-width:540px;                 /* default */
           display:flex;
           position:relative;
         }
+        @media(min-width:900px){           /* upscale on big screens */
+          .search-centre{max-width:720px;}
+          #clInput,#goBtn{font-size:1.1rem;}
+          #clInput{padding:1rem 1.2rem;}
+          #goBtn  {padding:1rem 1.5rem;}
+        }
       
-        /* ---------- pretty input ---------- */
+        /* -------- pretty input -------- */
         #clInput{
           flex:1;
           padding:.8rem 1rem;
-          font-size:1rem;
           background:var(--bg);
           border:3px solid var(--bord);
           border-right:none;
@@ -54,13 +58,12 @@
           outline:none;
         }
       
-        /* ---------- pretty button ---------- */
+        /* -------- pretty button -------- */
         #goBtn{
           padding:.8rem 1.3rem;
-          font-size:1rem;
-          font-weight:600;
           background:var(--btn);
           color:var(--bord);
+          font-weight:600;
           border:3px solid var(--bord);
           border-left:none;
           border-radius:0 32px 32px 0;
@@ -68,11 +71,10 @@
         }
         #goBtn:hover{filter:brightness(1.05);}
       
-        /* ---------- custom popup ---------- */
+        /* -------- custom pop-up -------- */
         #acPopup{
           position:absolute;
-          top:100%;
-          left:0; right:0;
+          top:100%;left:0;right:0;
           background:#fff;
           border:1px solid #ccc;
           border-top:0;
@@ -81,12 +83,8 @@
           z-index:999;
           font-size:.95rem;
         }
-        .ac-item{
-          padding:.6rem 1rem;
-          cursor:pointer;
-        }
-        .ac-item:hover,
-        .ac-active{background:#f2f2f2;}
+        .ac-item{padding:.6rem 1rem;cursor:pointer;}
+        .ac-item:hover,.ac-active{background:#f2f2f2;}
       </style>
 </head>
 
@@ -913,40 +911,50 @@
     Zimbabwe	Shona	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SN-ZWE
       `.trim();
     
-      const items = raw.split('\n').map(l => {
-    const [country, lang, url] = l.split('\t');
-    return {display:`${country} – ${lang}`, url, country, lang};
+      const items=raw.split('\n').map(l=>{
+    const[country,lang,url]=l.split('\t');
+    return{display:`${country} – ${lang}`,url,country,lang};
   });
 
-  /* -------- 2. DOM refs -------- */
-  const inp   = document.getElementById('clInput');
-  const btn   = document.getElementById('goBtn');
-  const pop   = document.getElementById('acPopup');
+  /* ------------------------------------------------------------------
+     2.  DOM refs
+     ------------------------------------------------------------------ */
+  const inp=document.getElementById('clInput');
+  const btn=document.getElementById('goBtn');
+  const pop=document.getElementById('acPopup');
 
-  /* -------- 3. Live suggestions -------- */
-  let active = -1;
+  /* ------------------------------------------------------------------
+     3.  Live suggestions
+     ------------------------------------------------------------------ */
+  let active=-1, autoMatch=null, autoFilled=false;
 
-  inp.addEventListener('input', render);
-  inp.addEventListener('keydown', nav);
-  document.addEventListener('click', e=>{
+  inp.addEventListener('input',render);
+  inp.addEventListener('keydown',nav);
+  inp.addEventListener('focus',()=>{          // clear pre-fill on first click
+    if(autoFilled){
+      inp.value='';
+      autoFilled=false;
+      pop.hidden=true;
+    }
+  });
+  document.addEventListener('click',e=>{
     if(!pop.contains(e.target)&&e.target!==inp) pop.hidden=true;
   });
 
   function render(){
-    const q = inp.value.trim().toLowerCase();
-    pop.innerHTML=''; active=-1;
-
+    const q=inp.value.trim().toLowerCase();
+    pop.innerHTML='';active=-1;
     if(!q){pop.hidden=true;return;}
 
-    const m = items.filter(i=>i.display.toLowerCase().includes(q)).slice(0,12);
+    const m=items.filter(i=>i.display.toLowerCase().includes(q)).slice(0,12);
     if(!m.length){pop.hidden=true;return;}
 
     m.forEach((o,i)=>{
-      const d=document.createElement('div');
-      d.className='ac-item';
-      d.textContent=o.display;
-      d.onclick=()=>go(o.url);
-      pop.appendChild(d);
+      const div=document.createElement('div');
+      div.className='ac-item';
+      div.textContent=o.display;
+      div.onclick=()=>go(o.url);
+      pop.appendChild(div);
     });
     pop.hidden=false;
   }
@@ -967,32 +975,38 @@
     e.preventDefault();
   }
 
-  /* -------- 4. Go button -------- */
+  /* ------------------------------------------------------------------
+     4.  Go button  – works with manual choice OR auto-detected
+     ------------------------------------------------------------------ */
   btn.onclick=()=>{
-    const exact=items.find(i=>i.display.toLowerCase()===inp.value.trim().toLowerCase());
-    if(exact) go(exact.url);
+    const val=inp.value.trim().toLowerCase();
+    const chosen=items.find(i=>i.display.toLowerCase()===val) || autoMatch;
+    if(chosen) go(chosen.url);
     else alert('Please choose a country–language from the list.');
   };
-
   function go(u){window.location.href=u;}
 
-  /* -------- 5. Autofill from browser locale (improved) -------- */
+  /* ------------------------------------------------------------------
+     5.  Auto-fill from browser locale  (kept but improved)
+     ------------------------------------------------------------------ */
   window.addEventListener('DOMContentLoaded',()=>{
     const loc=navigator.languages?.[0]||navigator.language||'';
     if(!loc) return;
 
     try{
       const L=new Intl.Locale(loc);
-      const regEn = new Intl.DisplayNames(['en'],{type:'region'}).of(L.region||'')||'';
-      const langEn= new Intl.DisplayNames(['en'],{type:'language'}).of(L.language)||'';
+      const reg=new Intl.DisplayNames(['en'],{type:'region'}).of(L.region||'')||'';
+      const lang=new Intl.DisplayNames(['en'],{type:'language'}).of(L.language)||'';
 
-      const match =
-        items.find(i=>i.country.toLowerCase()===regEn.toLowerCase()
-                      && i.lang.toLowerCase()===langEn.toLowerCase())
-     || items.find(i=>i.country.toLowerCase().includes(regEn.toLowerCase()))
-     || items.find(i=>i.lang.toLowerCase()===langEn.toLowerCase());
+      autoMatch= items.find(i=>i.country.toLowerCase()===reg.toLowerCase()
+                              && i.lang.toLowerCase()===lang.toLowerCase())
+              || items.find(i=>i.country.toLowerCase()===reg.toLowerCase())
+              || items.find(i=>i.lang.toLowerCase()===lang.toLowerCase());
 
-      if(match) inp.value=match.display;
+      if(autoMatch){
+        inp.value=autoMatch.display;
+        autoFilled=true;
+      }
     }catch(_){}
   });
 })();
