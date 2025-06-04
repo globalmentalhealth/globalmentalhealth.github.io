@@ -920,125 +920,115 @@
       `.trim();
     
       const items = raw.split('\n').map(l=>{
-    const [country, lang, url] = l.split('\t');
-    return {display:`${country} – ${lang}`, country, lang, url};
-  });
+  const [country, lang, url] = l.split('\t');
+  return {display:`${country} – ${lang}`, country, lang, url};
+});
 
-  /* ---------------------------------------------------------------
-     2.  DOM refs
-     --------------------------------------------------------------- */
-  const inp  = document.getElementById('clInput');
-  const btn  = document.getElementById('goBtn');
-  const list = document.getElementById('acList');
+/* ------------------------------------------------------------------
+   2.  DOM refs
+------------------------------------------------------------------ */
+const inp  = document.getElementById('clInput');
+const btn  = document.getElementById('goBtn');
+const list = document.getElementById('acList');
 
-  /* ---------------------------------------------------------------
-     3.  Autofill (country-first logic)
-     --------------------------------------------------------------- */
-  let autoChoice = null;           // object with .url
-  let autoFilled = false;          // clears on first focus
+/* ------------------------------------------------------------------
+   3.  Auto-fill by **country only**
+------------------------------------------------------------------ */
+let autoChoice = null;
+let autoFilled = false;
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const loc = navigator.languages?.[0] || navigator.language || '';
-    if (!loc) return;
+window.addEventListener('DOMContentLoaded', () => {
+  const loc = navigator.languages?.[0] || navigator.language || '';
+  if (!loc) return;
 
-    try{
-      const L = new Intl.Locale(loc);
-      const region = L.region
-        ? new Intl.DisplayNames(['en'],{type:'region'}).of(L.region)
-        : '';
-      const language = new Intl.DisplayNames(['en'],{type:'language'}).of(L.language);
+  try{
+    const L       = new Intl.Locale(loc);
+    const region  = L.region
+      ? new Intl.DisplayNames(['en'],{type:'region'}).of(L.region)
+      : '';
 
-      autoChoice =  items.find(i => i.country.toLowerCase() === region.toLowerCase()
-                                   && i.lang.toLowerCase() === language.toLowerCase())
-                || items.find(i => i.country.toLowerCase() === region.toLowerCase())
-                || items.find(i => i.lang   .toLowerCase() === language.toLowerCase());
+    autoChoice = items.find(i => i.country.toLowerCase() === region.toLowerCase()) || null;
 
-      if (autoChoice){
-        inp.value = autoChoice.display;
-        autoFilled = true;
-      }
-    }catch(_){}
-  });
-
-  /* ---------------------------------------------------------------
-     4.  When the user focuses, wipe autofill
-     --------------------------------------------------------------- */
-  inp.addEventListener('focus', () => {
-    if (autoFilled){
-      inp.value = '';
-      autoFilled = false;
-      autoChoice = null;
-      hideList();
+    if (autoChoice){
+      inp.value   = autoChoice.display;
+      autoFilled  = true;
     }
-  });
+  }catch(_){}
+});
 
-  /* ---------------------------------------------------------------
-     5.  Live suggestions list
-     --------------------------------------------------------------- */
-  let activeIndex = -1;            // highlighted <li>
-
-  inp.addEventListener('input', updateList);
-  inp.addEventListener('keydown', keyNav);
-  document.addEventListener('click', e => {
-    if (!list.contains(e.target) && e.target !== inp) hideList();
-  });
-
-  function updateList(){
-    const q = inp.value.trim().toLowerCase();
-    list.innerHTML = '';
-    activeIndex = -1;
-
-    if (!q){ hideList(); return; }
-
-    const matches = items.filter(i => i.display.toLowerCase().includes(q)).slice(0, 12);
-    if (!matches.length){ hideList(); return; }
-
-    matches.forEach((m, i) => {
-      const li = document.createElement('li');
-      li.textContent = m.display;
-      li.onclick = () => go(m.url);
-      list.appendChild(li);
-    });
-    showList();
+/* clear autofill on first focus */
+inp.addEventListener('focus', () => {
+  if (autoFilled){
+    inp.value   = '';
+    autoFilled  = false;
+    autoChoice  = null;
+    hideList();
   }
+});
 
-  function keyNav(e){
-    const rows = [...list.children];
-    if (!rows.length) return;
+/* ------------------------------------------------------------------
+   4.  Live suggestions list
+------------------------------------------------------------------ */
+let activeIndex = -1;
 
-    switch(e.key){
-      case 'ArrowDown':
-        activeIndex = (activeIndex + 1) % rows.length;
-        break;
-      case 'ArrowUp':
-        activeIndex = (activeIndex - 1 + rows.length) % rows.length;
-        break;
-      case 'Enter':
-        rows[activeIndex >= 0 ? activeIndex : 0].click();
-        e.preventDefault();
-        return;
-      default: return;
-    }
-    rows.forEach(r => r.classList.remove('ac-active'));
-    rows[activeIndex].classList.add('ac-active');
-    rows[activeIndex].scrollIntoView({block:'nearest'});
-    e.preventDefault();
+inp.addEventListener('input', updateList);
+inp.addEventListener('keydown', keyNav);
+document.addEventListener('click', e=>{
+  if (!list.contains(e.target) && e.target !== inp) hideList();
+});
+
+function updateList(){
+  const q = inp.value.trim().toLowerCase();
+  list.innerHTML = '';
+  activeIndex = -1;
+
+  if (!q){ hideList(); return; }
+
+  const matches = items.filter(i => i.display.toLowerCase().includes(q)).slice(0,12);
+  if (!matches.length){ hideList(); return; }
+
+  matches.forEach((m,i) => {
+    const li = document.createElement('li');
+    li.textContent = m.display;
+    li.onclick     = () => go(m.url);
+    list.appendChild(li);
+  });
+  showList();
+}
+
+function keyNav(e){
+  const rows = [...list.children];
+  if (!rows.length) return;
+
+  switch(e.key){
+    case 'ArrowDown': activeIndex = (activeIndex + 1) % rows.length; break;
+    case 'ArrowUp':   activeIndex = (activeIndex - 1 + rows.length) % rows.length; break;
+    case 'Enter':
+      rows[activeIndex >= 0 ? activeIndex : 0].click();
+      e.preventDefault();
+      return;
+    default: return;
   }
+  rows.forEach(r => r.classList.remove('ac-active'));
+  rows[activeIndex].classList.add('ac-active');
+  rows[activeIndex].scrollIntoView({block:'nearest'});
+  e.preventDefault();
+}
 
-  function showList(){ list.style.display = 'block'; }
-  function hideList(){ list.style.display = 'none'; }
+function showList(){ list.style.display = 'block'; }
+function hideList(){ list.style.display = 'none'; }
 
-  /* ---------------------------------------------------------------
-     6.  Go button
-     --------------------------------------------------------------- */
-  btn.onclick = () => {
-    const typed = inp.value.trim().toLowerCase();
-    const chosen = items.find(i => i.display.toLowerCase() === typed) || autoChoice;
-    if (chosen) go(chosen.url);
-    else alert('Please choose a country–language from the list.');
-  };
+/* ------------------------------------------------------------------
+   5.  Go button
+------------------------------------------------------------------ */
+btn.onclick = () => {
+  const typed  = inp.value.trim().toLowerCase();
+  const choice = items.find(i => i.display.toLowerCase() === typed) || autoChoice;
+  if (choice) go(choice.url);
+  else alert('Please choose a country–language from the list.');
+};
 
-  function go(url){ window.location.href = url; }
+function go(url){ window.location.href = url; }
 })();
 </script>
 </body>
