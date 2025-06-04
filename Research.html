@@ -794,26 +794,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.6/dist/umd/popper.min.js"></script>
 <script>
     (() => {
-        const nativeNamesMap = {
-    // Countries
-    'Österreich': 'Austria',
-    'Deutschland': 'Germany',
-    'España': 'Spain',
-    '日本': 'Japan',
-    '中国': 'China',
-    '대한민국': 'Korea, Republic of (South Korea)',
-    // Add more country mappings as needed
-    
-    // Languages
-    'Deutsch': 'German',
-    'Español': 'Spanish',
-    'Français': 'French',
-    '日本語': 'Japanese',
-    '中文': 'Mandarin',
-    '한국어': 'Korean',
-    // Add more language mappings as needed
-  };
-
+        
       /* ------------------------------------------------------------------
        * 1. RAW LOOK-UP TABLE  (tab-separated, exactly as you pasted it)
        * ------------------------------------------------------------------ */
@@ -941,29 +922,10 @@
     Zimbabwe	Shona	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SN-ZWE
       `.trim();
     
-
-      const items = raw.split('\n').map(l => {
-    const [country, lang, url] = l.split('\t');
-    return {display: `${country} – ${lang}`, country, lang, url};
-  });
-
-  // Function to normalize input (convert native names to English)
-  function normalizeInput(input) {
-    // Check if input matches any native name
-    const normalized = nativeNamesMap[input] || input;
-    // Convert to lowercase for case-insensitive comparison
-    return normalized.toLowerCase();
-  }
-
-  // Function to find matching items
-  function findMatches(searchTerm) {
-    const normalizedSearch = normalizeInput(searchTerm);
-    
-    return items.filter(item => {
-      // Check both country and language in their original and native forms
-      return normalizeInput(item.country).includes(normalizedSearch) || 
-             normalizeInput(item.lang).includes(normalizedSearch);
-    });
+      const items = raw.split('\n').map(l=>{
+  const [country, lang, url] = l.split('\t');
+  return {display:`${country} – ${lang}`, country, lang, url};
+});
 
 /* ------------------------------------------------------------------
    2.  DOM refs
