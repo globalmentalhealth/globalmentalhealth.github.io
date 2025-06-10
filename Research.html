@@ -34,7 +34,7 @@
           font-family:sans-serif;
           margin:0;
           display:flex;
-          justify-content:center;               /* centre horizontally */
+          justify-content:center;               
         }
         .bold_text3{
             position: relative;
@@ -74,7 +74,7 @@
         }
         #goBtn:hover{filter:brightness(1.05);}
       
-        /* suggestions list (regular flow, not overlay) */
+        
         #acList{
           list-style:none;
           margin:0;
@@ -795,9 +795,7 @@
 <script>
     (() => {
         
-      /* ------------------------------------------------------------------
-       * 1. RAW LOOK-UP TABLE  (tab-separated, exactly as you pasted it)
-       * ------------------------------------------------------------------ */
+  
       const raw = `
     Albania/Shqipëri	Albanian/Shqip	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=SQI-ALB
     Algeria	Arabic	https://cumc.co1.qualtrics.com/jfe/form/SV_5dn1sx6nkYH2RFk?Q_Language=AR-DZA
@@ -927,16 +925,12 @@
   return {display:`${country} – ${lang}`, country, lang, url};
 });
 
-/* ------------------------------------------------------------------
-   2.  DOM refs
------------------------------------------------------------------- */
+
 const inp  = document.getElementById('clInput');
 const btn  = document.getElementById('goBtn');
 const list = document.getElementById('acList');
 
-/* ------------------------------------------------------------------
-   3.  Auto-fill by **country only** (inclusive match)
------------------------------------------------------------------- */
+
 let autoChoice = null;
 let autoFilled = false;
 
@@ -970,9 +964,7 @@ inp.addEventListener('focus', () => {
   }
 });
 
-/* ------------------------------------------------------------------
-   4.  Live suggestions
------------------------------------------------------------------- */
+
 let activeIndex = -1;
 
 inp.addEventListener('input', updateList);
@@ -1022,9 +1014,7 @@ function keyNav(e){
 function showList(){ list.style.display = 'block'; }
 function hideList(){ list.style.display = 'none'; }
 
-/* ------------------------------------------------------------------
-   5.  Go button
------------------------------------------------------------------- */
+
 btn.onclick = () => {
   const typed  = inp.value.trim().toLowerCase();
   const choice = items.find(i => i.display.toLowerCase() === typed) || autoChoice;
