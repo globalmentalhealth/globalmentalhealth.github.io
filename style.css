@@ -931,7 +931,7 @@ a[data-type="external"] {
 
     } 
     .lantop_subtitle {
-        font-size: calc(14.5px + 0.625vw);
+        font-size: calc(10.5px + 0.525vw);
         padding-top: 8px;
 
     }
