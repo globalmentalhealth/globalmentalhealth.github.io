@@ -483,7 +483,7 @@ a[data-type="external"] {
 
 @media (min-width: 500px) and (max-width: 1999px) {
     .lantop_subtitle {
-        font-size: calc(15.5px + 0.625vw);
+        font-size: calc(12.5px + 0.525vw);
         padding-top: 29px;
     }
 }
@@ -504,6 +504,8 @@ a[data-type="external"] {
     .lantop_subtitle {
         padding-top: 0.4em;
         width: 100%;
+        padding-bottom: 1.4em;
+
     }
 }
 
