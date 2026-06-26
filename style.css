@@ -1798,3 +1798,45 @@ a[data-type="external"] {
     -webkit-text-decoration-color: var(--c-bg-light);
     text-decoration-color: var(--c-bg-light)
 }
+
+/* Call-to-action button inviting visitors to explore the 2025 results */
+.results-cta {
+    display: flex;
+    justify-content: center;
+    margin: 1.5em 0 2em;
+}
+
+.results-cta_button {
+    display: inline-block;
+    padding: 0.85em 2em;
+    background-color: #004534;
+    color: #fff;
+    font-family: "Nunito Sans", sans-serif;
+    font-weight: 700;
+    font-size: 1.05em;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 999px;
+    border: 2px solid #004534;
+    box-shadow: 0 4px 12px rgba(0, 69, 52, 0.2);
+    transition: background-color .3s ease, color .3s ease, transform .2s ease, box-shadow .3s ease;
+}
+
+.results-cta_button:hover,
+.results-cta_button:focus {
+    background-color: #cde982;
+    color: #004534;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 69, 52, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .results-cta_button {
+        transition: none;
+    }
+    .results-cta_button:hover,
+    .results-cta_button:focus {
+        transform: none;
+    }
+}
